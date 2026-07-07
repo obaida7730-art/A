@@ -10,7 +10,7 @@ jobs:
       - name: Install Toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y bc bison flex libssl-dev libelf-dev clang lld
+          sudo apt-get install -y bc bison flex libssl-dev libelf-dev clang lld gcc-aarch64-linux-gnu device-tree-compiler
 
       - name: Clone Kernel Source
         run: |
@@ -36,8 +36,9 @@ jobs:
         run: |
           cd kernel
           export ARCH=arm64
-          make O=out redwood_merged_defconfig || echo "DEFCONFIG_FAILED"
-          make O=out -j$(nproc) 2>&1 | tee build_log.txt || echo "BUILD_FAILED"
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- redwood_merged_defconfig || echo "DEFCONFIG_FAILED"
+          make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) 2>&1 | tee build_log.txt || echo "BUILD_FAILED"
 
       - name: Upload Build Log
         if: always()
